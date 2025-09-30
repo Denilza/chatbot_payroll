@@ -81,40 +81,26 @@ Integração com sistemas de RH existentes
 
 Dashboard administrativo para gestores
 
-🏗️ Estrutura do Projeto
-text
-chat_bot_v2/
+## 🏗️ Estrutura do Projeto
+
+```text
+chatbot_payroll/
 ├── app/
-│   ├── __pycache__/
+│   ├── main.py
 │   ├── core/
-│   │   ├── __pycache__/
-│   │   ├── __init__.py
 │   │   ├── chatbot.py
-│   │   ├── memory.py
-│   │   ├── rag_engine.py
-│   │   └── web_search.py
+│   │   └── rag_engine.py
 │   ├── models/
-│   ├── services/
-│   ├── utils/
-│   │   ├── __init__.py
-│   └── __init__.py
-├── data/
-├── scripts/
+│   │   └── schemas.py
+│   └── services/
+│       └── payroll_service.py
 ├── tests/
-│   ├── __init__.py
-│   ├── conftest.py
-│   ├── test_chatbot.py
-│   ├── test_payroll_service.py
-│   ├── test_rag_engine.py
-│   └── tests_unitarios.py
-├── venv/
-├── .env.txt
-├── app.log
-├── main.py
+│   └── test_basico.py
+├── .gitignore
 ├── pyproject.toml
 ├── README.md
-└── requirements.txt
-
+└── streamlit_app.py
+```
 ⚙️ Instalação e Configuração
 Clone o repositório
 
