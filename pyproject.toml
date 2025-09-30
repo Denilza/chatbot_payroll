@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chatbot-folha-pagamento"
+version = "0.1.0"
+description = "Chatbot para consulta de folha de pagamento com RAG"
+authors = [
+    {name = "Jonas", email = "seu.email@example.com"},
+]
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "streamlit>=1.28.0",
+    "pandas>=2.0.0",
+    "openai>=1.0.0",
+    "python-dotenv>=1.0.0",
+    "langchain>=0.0.200",
+    "langchain-community>=0.0.10",
+    "langchain-openai>=0.0.1",
+    "faiss-cpu>=1.7.0",
+    "requests>=2.31.0",
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "pydantic>=2.0.0",
+    "python-multipart>=0.0.6",
+    "duckduckgo-search>=3.0.0",
+    "dateparser>=1.0.0",
+    "httpx>=0.24.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+]
+
+# Configuração para pacotes
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+exclude = ["tests*", "data*", "venv*", ".*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--tb=short"
+]
+markers = [
+    "slow: marks tests as slow",
+    "integration: marks tests as integration tests"
+]
+filterwarnings = [
+    "ignore::DeprecationWarning"
+]
