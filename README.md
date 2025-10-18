@@ -102,23 +102,19 @@ chatbot_payroll/
 └── streamlit_app.py
 ```
 ⚙️ Instalação e Configuração
-Clone o repositório
+# 1. Clonar
+git clone https://github.com/seu-usuario/chatbot_payroll.git
+cd chatbot_payroll
 
-bash
-git clone https://github.com/seu-usuario/chatbot-folha-pagamento.git
-cd chatbot-folha-pagamento
-Instale as dependências
+# 2. Venv
+python -m venv venv
+venv\Scripts\activate  # Windows
+source venv/bin/activate  # Linux/Mac
 
-bash
-pip install -r requirements.txt
-Configure as variáveis de ambiente
+# 3. Instalar
+pip install -e .
 
-bash
-cp .env.example .env
-# Edite o .env com suas configurações
-Execute a aplicação
-
-bash
+# 4. Executar
 streamlit run streamlit_app.py
 🎯 Como Usar
 Acesse a aplicação no navegador (geralmente http://localhost:8501)
