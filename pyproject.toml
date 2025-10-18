@@ -1,4 +1,4 @@
-[build-system]
+﻿[build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
@@ -10,7 +10,7 @@ authors = [
     {name = "Denilza", email = "seu.email@example.com"},
 ]
 readme = "README.md"
-requires-python = ">=3.8,<3.9.7 || >3.9.7"
+requires-python = ">=3.8"
 dependencies = [
     "streamlit>=1.28.0",
     "pandas>=2.0.0",
