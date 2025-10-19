@@ -161,6 +161,12 @@ def initialize_session_state():
     if 'conversation_id' not in st.session_state:
         st.session_state.conversation_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
+def clear_conversation():
+    """Limpa toda a conversa"""
+    st.session_state.messages = []
+    st.session_state.initial_question = None
+    st.session_state.selected_suggestion = None
+
 def main():
     st.set_page_config(
         page_title="🤖 Chatbot Folha de Pagamento",
@@ -169,7 +175,7 @@ def main():
         initial_sidebar_state="expanded"
     )
     
-    # CSS personalizado com gradiente linear
+    # CSS personalizado atualizado
     st.markdown("""
     <style>
     /* Fundo cinza claro */
@@ -181,15 +187,15 @@ def main():
         background-color: #f8f9fa;
     }
     
-    /* Área central com GRADIENTE LINEAR */
+    /* Área central sem gradiente - FUNDO BRANCO */
     .main .block-container {
-        background: linear-gradient(90deg, #2563EB 0%, #7C3AED 100%) !important;
+        background: #ffffff !important;
         border-radius: 15px;
         padding: 30px;
         margin: 20px auto;
         max-width: 95%;
-        box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3);
-        border: 1px solid transparent;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e0e0e0;
     }
     
     /* Sidebar styling */
@@ -217,7 +223,31 @@ def main():
         border: 1px solid #e0e0e0;
     }
     
-    /* Button styling */
+    /* Botão Restart sem fundo - NOVO ESTILO */
+    .restart-button {
+        background: transparent !important;
+        color: #2563EB !important;
+        border: 2px solid #2563EB !important;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-weight: 600;
+        margin-left: 20px;
+    }
+    
+    .restart-button:hover {
+        background: #2563EB !important;
+        color: white !important;
+    }
+    
+    /* Container do título e botão */
+    .title-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+    
+    /* Button styling padrão */
     .stButton button {
         background: linear-gradient(90deg, #2563EB 0%, #7C3AED 100%);
         color: white;
@@ -232,7 +262,7 @@ def main():
         color: white;
     }
     
-    /* Input styling - AUMENTADO */
+    /* Input styling */
     .stChatInput input {
         border-radius: 12px;
         border: 3px solid #2563EB;
@@ -255,13 +285,13 @@ def main():
         border: 1px solid #e0e0e0;
     }
     
-    /* Texto branco para contraste na área com gradiente */
+    /* Texto normal na área principal - COR PRETA */
     .main .block-container h1, 
     .main .block-container h2, 
     .main .block-container h3,
     .main .block-container .stMarkdown p,
     .main .block-container .stMarkdown div {
-        color: white !important;
+        color: #333 !important;
     }
     
     /* Download button styling */
@@ -299,20 +329,66 @@ def main():
         margin: 10px 0;
         color: #1e40af;
     }
-    </style>
-    """, unsafe_allow_html=True)
     
-    # Header principal - DENTRO DA ÁREA COM GRADIENTE
-    st.title("📋Chatbot Folha de Pagamento")
-    st.markdown("""
-    <div style='color: white; font-size: 1.2rem; margin-bottom: 30px;'>
-    Faça perguntas sobre folha de pagamento e obtenha respostas instantâneas com evidências detalhadas.
-    </div>
+    /* Estilo para mensagens de não entendimento - NOVO */
+    .not-understood-message {
+        background-color: #fffbeb;
+        border: 1px solid #fef3c7;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 10px 0;
+        color: #92400e;
+        border-left: 4px solid #f59e0b;
+    }
+    
+    /* Estilo para mensagens de informações gerais - NOVO */
+    .general-info-message {
+        background-color: #f0f9ff;
+        border: 1px solid #bae6fd;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 10px 0;
+        color: #0c4a6e;
+        border-left: 4px solid #0ea5e9;
+    }
+    
+    /* Estilo para mensagens de salário específico - NOVO */
+    .salary-message {
+        background-color: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 10px 0;
+        color: #166534;
+        border-left: 4px solid #22c55e;
+    }
+    </style>
     """, unsafe_allow_html=True)
     
     initialize_session_state()
     
-    # Sidebar com informações do chat
+    # Header principal com título e botão Restart lado a lado
+    col1, col2 = st.columns([4, 1])
+    
+    with col1:
+        st.title("📋 Chatbot Folha de Pagamento")
+        st.markdown("""
+        <div style='color: #2563EB; font-size: 1.2rem; margin-bottom: 30px; font-weight: 500;'>
+        Faça perguntas sobre folha de pagamento e obtenha respostas instantâneas com evidências detalhadas.
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown("<div style='height: 28px'></div>", unsafe_allow_html=True)
+        if st.button(
+            "🔄 Restart",
+            key="restart_button_header",
+            use_container_width=True
+        ):
+            clear_conversation()
+            st.rerun()
+    
+    # Sidebar com informações do chat (sem botão Restart)
     with st.sidebar:
         st.markdown("""
         <div style='padding: 10px; margin-bottom: 20px;'>
@@ -363,7 +439,7 @@ def main():
             st.write(f"👤 **Suas:** {user_messages}")
             st.write(f"🤖 **Respostas:** {bot_messages}")
     
-    # Área principal do chat - DENTRO DA ÁREA COM GRADIENTE
+    # Área principal do chat
     chat_container = st.container()
     
     with chat_container:
@@ -405,9 +481,9 @@ def main():
                                     key=f"download_btn_{i}_{datetime.now().strftime('%H%M%S')}"  # CHAVE ÚNICA ADICIONADA
                                 )
     
-    # Input do usuário - AUMENTADO E DENTRO DA ÁREA COM GRADIENTE
+    # Input do usuário
     st.markdown("---")
-    st.markdown("### 👩 Digite sua mensagem")
+    st.markdown("### 👩 Olá, estou aqui para esclarecer as suas dúvidas")
     
     # Container para dar mais destaque ao input
     with st.container():
