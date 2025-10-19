@@ -15,7 +15,7 @@ class Chatbot:
         # System prompt para o LLM
         self.system_prompt = """
         Você é um assistente especializado em folha de pagamento. Suas respostas devem ser:
-        - Clarase concisas
+        - Claras e concisas
         - Em português brasileiro
         - Com formatação adequada para valores monetários (R$)
         - Incluir as evidências fornecidas quando relevante
