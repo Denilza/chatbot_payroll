@@ -1,4 +1,4 @@
-🤖 [Chatbot Folha de Pagamento ](https://chatbotpayroll-eptmrmbmrb52zahgcb5knp.streamlit.app/)
+🤖 [Chatbot Folha de Pagamento ](https://chatbotpayroll-eptmrmbmrb52zahgcb5knp.streamlit.app/) Clique para acessar o app
 
 Um chatbot inteligente desenvolvido em Python(3.11.9) com Streamlit para consultas sobre folha de pagamento, utilizando técnicas de RAG (Retrieval-Augmented Generation) e processamento de linguagem natural.
 
