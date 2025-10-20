@@ -20,7 +20,7 @@ O projeto foi desenvolvido para **automatizar consultas de folha de pagamento**,
 <p align="center">
   <img src="assets/fluxoapp.png" alt="Arquitetura RAG" width="700">
 </p>
----
+
 ## ⚙️ Execução Local  
 
 ### 1️⃣ Clonar o repositório  
