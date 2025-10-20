@@ -77,26 +77,7 @@ Alertas automáticos para datas importantes
 Integração com sistemas de RH existentes
 
 
-## 🏗️ Estrutura do Projeto
 
-```text
-chatbot_payroll/
-├── app/
-│   ├── main.py
-│   ├── core/
-│   │   ├── chatbot.py
-│   │   └── rag_engine.py
-│   ├── models/
-│   │   └── schemas.py
-│   └── services/
-│       └── payroll_service.py
-├── tests/
-│   └── test_basico.py
-├── .gitignore
-├── pyproject.toml
-├── README.md
-└── streamlit_app.py
-```
 ⚙️ Instalação e Configuração
 # 1. Clonar
 git clone https://github.com/seu-usuario/chatbot_payroll.git
