@@ -16,7 +16,9 @@ O projeto foi desenvolvido para **automatizar consultas de folha de pagamento**,
 - A arquitetura **RAG (Retrieval-Augmented Generation)** garante **respostas precisas e contextualizadas** com base nos dados reais da folha.  
 - O **Pandas** foi adotado para manipulação e análise eficiente dos dados salariais, pela sua **performance, flexibilidade e ampla adoção no ecossistema de dados em Python**.  
 - Estrutura modular em **Python (3.11.9)** facilita **testes, manutenção e escalabilidade**.  
-
+<p align="center">
+  <img src="assets/RAGimg.png" alt="Arquitetura RAG" width="700">
+</p>
 ---
 
 ## ⚙️ Execução Local  
