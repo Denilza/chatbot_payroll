@@ -1,5 +1,6 @@
-🤖 Chatbot Folha de Pagamento(Acesse aqui: [https://chatbotpayroll-bdjvppxtzn7wukfludds3d.streamlit.app/](https://chatbotpayroll-eptmrmbmrb52zahgcb5knp.streamlit.app/))
-Um chatbot inteligente desenvolvido em Python com Streamlit para consultas sobre folha de pagamento, utilizando técnicas de RAG (Retrieval-Augmented Generation) e processamento de linguagem natural.
+🤖 [Chatbot Folha de Pagamento (Acesse aqui)](https://chatbotpayroll-eptmrmbmrb52zahgcb5knp.streamlit.app/)
+
+Um chatbot inteligente desenvolvido em Python(3.11.9) com Streamlit para consultas sobre folha de pagamento, utilizando técnicas de RAG (Retrieval-Augmented Generation) e processamento de linguagem natural.
 
 🚀 Funcionalidades Atuais
 💼 Consultas de Folha de Pagamento
@@ -32,9 +33,9 @@ Bruno Lima
 🛠️ Tecnologias Utilizadas
 Frontend: Streamlit
 
-Backend: Python
+Backend: Python(3.11.9)
 
-Processamento de Linguagem: RAG Engine customizado
+Processamento de Linguagem: RAG Engine 
 
 Armazenamento: CSV com dados de folha de pagamento
 
@@ -51,9 +52,6 @@ Web scraping de portais oficiais para informações atualizadas
 API do Banco Central para dados econômicos oficiais
 
 🎨 Melhorias de Usabilidade
-Interface mais intuitiva com componentes visuais aprimorados
-
-Modo escuro/claro para melhor experiência do usuário
 
 Relatórios exportáveis em PDF e Excel
 
@@ -68,7 +66,6 @@ Análise preditiva de tendências de pagamento
 
 Reconhecimento de voz para interações hands-free
 
-Suporte multilíngue para atendimento internacional
 
 📈 Funcionalidades Avançadas
 Comparativos entre funcionários (com privacidade)
@@ -79,7 +76,6 @@ Alertas automáticos para datas importantes
 
 Integração com sistemas de RH existentes
 
-Dashboard administrativo para gestores
 
 ## 🏗️ Estrutura do Projeto
 
@@ -117,7 +113,7 @@ pip install -e .
 # 4. Executar
 streamlit run streamlit_app.py
 🎯 Como Usar
-Acesse a aplicação no navegador (geralmente http://localhost:8501)
+Acesse a aplicação no navegador: http://localhost:8501
 
 Faça perguntas em linguagem natural sobre folha de pagamento
 
