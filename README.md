@@ -82,8 +82,10 @@ $ curl -X POST http://localhost:8000/chat \
 
 O projeto foi pensado em boas práticas de **observabilidade** e **controle de qualidade** das respostas do chatbot.
 
-- 📜 **Observabilidade:** o módulo `observability.py` registra logs estruturados e métricas de uso, permitindo acompanhar o desempenho e detectar falhas durante a execução.  
-- 🛡️ **Guardrails:** aplicados para garantir segurança e confiabilidade das respostas geradas, evitando saídas fora de contexto ou que violem políticas do sistema.
+- 📜 **Observabilidade:**
+  O módulo `observability.py` registra logs estruturados e métricas de uso, permitindo acompanhar o desempenho e detectar falhas durante a execução.  
+- 🛡️ **Guardrails:**
+  Aplicados para garantir segurança e confiabilidade das respostas geradas, evitando saídas fora de contexto ou que violem políticas do sistema.
 
 ## Futuras melhorias
 
