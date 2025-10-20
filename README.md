@@ -78,6 +78,23 @@ $ curl -X POST http://localhost:8000/chat \
 >   -d '{"message": "Quanto recebi em maio/2025? (Ana Souza)"}'
 {"response":"ana souza recebeu R$ 8.418,75 em maio de 2025.","evidence":[{"employee_id":"E001","name":"Ana Souza","competency":"2025-05","net_pay":8418.75,"payment_date":"2025-05-28","base_salary":8000.0,"bonus":1200.0,"deductions_inss":880.0,"deductions_irrf":551.25}],"sources":["payroll.csv"],"conversation_id":"default"}(venv) 
 
+### 🧩 Monitoramento, Observabilidade e Guardrails
+
+O projeto foi pensado em boas práticas de **observabilidade** e **controle de qualidade** das respostas do chatbot.
+
+- 📜 **Observabilidade:** o módulo `observability.py` registra logs estruturados e métricas de uso, permitindo acompanhar o desempenho e detectar falhas durante a execução.  
+- 🛡️ **Guardrails:** aplicados para garantir segurança e confiabilidade das respostas geradas, evitando saídas fora de contexto ou que violem políticas do sistema.
+
+## Futuras melhorias
+
+- **Web Search:** buscar informações externas quando os dados internos não forem suficientes.  
+- **Suporte a múltiplos formatos de dados:** Excel, CSV ou ERP.  
+- **Dashboard e relatórios:** análise de consultas e desempenho do chatbot.  
+- **Autenticação e permissões:** acesso seguro a informações confidenciais.  
+- **Notificações e alertas automáticos** sobre folha de pagamento.  
+- **Versão mobile ou PWA** e suporte a múltiplos idiomas.
+
+
 📞 Suporte
 Para dúvidas e suporte:
 
