@@ -80,7 +80,7 @@ Integração com sistemas de RH existentes
 
 ⚙️ Instalação e Configuração
 # 1. Clonar
-git clone https://github.com/seu-usuario/chatbot_payroll.git
+git clone (https://github.com/Denilza/chatbot_payroll.git)
 cd chatbot_payroll
 
 # 2. Venv
