@@ -1,86 +1,29 @@
-🤖 Clique para acessar o app: [Chatbot Folha de Pagamento ](https://chatbotpayroll-eptmrmbmrb52zahgcb5knp.streamlit.app/) 
+# 🤖 Chatbot Folha de Pagamento  
 
-Um chatbot inteligente desenvolvido em Python(3.11.9) com Streamlit para consultas sobre folha de pagamento, utilizando técnicas de RAG (Retrieval-Augmented Generation) e processamento de linguagem natural.
+**Aplicação:** [Chatbot Folha de Pagamento](https://denilza-chatbot-payroll.streamlit.app/)  
 
-🚀 Funcionalidades Atuais
-💼 Consultas de Folha de Pagamento
-Salário Líquido: Consulta de valores líquidos por período
+Um chatbot inteligente para consulta de **folha de pagamento (payroll)** — o conjunto de registros salariais de colaboradores, incluindo salários, bônus e descontos.  
+O sistema permite consultar informações salariais de forma simples, automatizada e segura, utilizando **técnicas de RAG (Retrieval-Augmented Generation)** e **processamento de linguagem natural (NLP)**.  
 
-Datas de Pagamento: Informações sobre quando os salários foram pagos
+---
 
-Descontos: Detalhes sobre INSS, IRRF e outras deduções
+## 🎯 Objetivo e Justificativa  
 
-Bônus: Consulta de valores e períodos de bônus
+O projeto foi desenvolvido para **automatizar consultas de folha de pagamento**, reduzindo o tempo de resposta do RH e melhorando a transparência com os funcionários.  
 
-Histórico: Acesso a registros históricos de pagamento
+### 🧠 Justificativas Técnicas  
+- Utiliza o modelo **GPT-3.5-Turbo** (LLM livre da OpenAI), escolhido pelo **baixo custo, estabilidade e excelente desempenho** em tarefas de linguagem.  
+- A arquitetura **RAG (Retrieval-Augmented Generation)** garante **respostas precisas e contextualizadas** com base nos dados reais da folha.  
+- O **Pandas** foi adotado para manipulação e análise eficiente dos dados salariais, pela sua **performance, flexibilidade e ampla adoção no ecossistema de dados em Python**.  
+- Estrutura modular em **Python (3.11.9)** facilita **testes, manutenção e escalabilidade**.  
 
-👥 Funcionários Suportados
-Ana Souza
+---
 
-Bruno Lima
+## ⚙️ Execução Local  
 
-📊 Exemplos de Perguntas
-"Quanto recebi em maio/2025?" (Ana Souza)
-
-"Qual o total líquido de Ana Souza no 1º trimestre?"
-
-"Qual foi o desconto de INSS do Bruno em jun/2025?"
-
-"Quando foi pago o salário de abril/2025 do Bruno?"
-
-"Qual foi o maior bônus do Bruno e em que mês?"
-
-🛠️ Tecnologias Utilizadas
-Frontend: Streamlit
-
-Backend: Python(3.11.9)
-
-Processamento de Linguagem: RAG Engine 
-
-Armazenamento: CSV com dados de folha de pagamento
-
-Estilização: CSS personalizado com gradientes
-
-🔮 Roadmap e Futuras Melhorias
-🌐 Pesquisa Web e Integrações
-Integração com APIs financeiras para dados em tempo real
-
-Busca web para consulta de taxas Selic e indicadores econômicos
-
-Web scraping de portais oficiais para informações atualizadas
-
-API do Banco Central para dados econômicos oficiais
-
-🎨 Melhorias de Usabilidade
-
-Relatórios exportáveis em PDF e Excel
-
-Gráficos interativos para visualização de dados
-
-Histórico de conversas persistente entre sessões
-
-🤖 Inteligência Artificial
-Modelos de LLM mais avançados para melhor compreensão
-
-Análise preditiva de tendências de pagamento
-
-Reconhecimento de voz para interações hands-free
-
-
-📈 Funcionalidades Avançadas
-Comparativos entre funcionários (com privacidade)
-
-Projeções futuras baseadas em dados históricos
-
-Alertas automáticos para datas importantes
-
-Integração com sistemas de RH existentes
-
-
-
-⚙️ Instalação e Configuração
-# 1. Clonar
-git clone (https://github.com/Denilza/chatbot_payroll.git)
+### 1️⃣ Clonar o repositório  
+```bash
+git clone https://github.com/Denilza/chatbot_payroll.git
 cd chatbot_payroll
 
 # 2. Venv
@@ -93,6 +36,7 @@ pip install -e .
 
 # 4. Executar
 streamlit run streamlit_app.py
+
 🎯 Como Usar
 Acesse a aplicação no navegador: http://localhost:8501
 
@@ -110,31 +54,18 @@ OPENAI_API_KEY=sua_chave_openai
 LOG_LEVEL=INFO
 Desenvolvimento Local
 bash
-# Ambiente virtual
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate     # Windows
 
 # Desenvolvimento
 pip install -r requirements-dev.txt
 streamlit run streamlit_app.py
-🤝 Contribuição
-Este projeto está em constante evolução! Contribuições são bem-vindas:
 
-Fork o projeto
+🧪 Executando Testes
 
-Crie uma branch para sua feature (git checkout -b feature/nova-feature)
+Os testes unitários estão localizados na pasta tests/.
+Para executá-los, use:
 
-Commit suas mudanças (git commit -am 'Adiciona nova feature')
+pytest -v
 
-Push para a branch (git push origin feature/nova-feature)
-
-Abra um Pull Request
-
-📝 Licença
-Este projeto está sob a licença MIT. Veja o arquivo LICENSE para detalhes.
-
-# API Chat Bot - Exemplos de Uso
 
 ## Endpoints disponíveis
 
@@ -150,5 +81,21 @@ Para dúvidas e suporte:
 
 📧 Email: denilzalimas@gmail.com
 
+🤝 Contribuição
+Este projeto está em constante evolução! Contribuições são bem-vindas:
+
+Fork o projeto
+
+Crie uma branch para sua feature (git checkout -b feature/nova-feature)
+
+Commit suas mudanças (git commit -am 'Adiciona nova feature')
+
+Push para a branch (git push origin feature/nova-feature)
+
+Abra um Pull Request
+
+
+📝 Licença
+Este projeto está sob a licença MIT. Veja o arquivo LICENSE para detalhes.
 
 # chatbot_payroll
