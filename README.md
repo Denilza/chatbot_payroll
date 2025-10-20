@@ -17,26 +17,9 @@ O projeto foi desenvolvido para **automatizar consultas de folha de pagamento**,
 - O **Pandas** foi adotado para manipulação e análise eficiente dos dados salariais, pela sua **performance, flexibilidade e ampla adoção no ecossistema de dados em Python**.  
 - Estrutura modular em **Python (3.11.9)** facilita **testes, manutenção e escalabilidade**.  
 
-graph LR
-    A[📩 Mensagem do Usuário] --> B{🔍 Análise de Intenção}
-    
-    B -->|Consulta Folha| C[📊 Sistema RAG]
-    B -->|Busca Web| D[🌐 Web Search]
-    B -->|Conversa Geral| E[💬 LLM Direto]
-    
-    C --> F[🔍 Buscar Dados]
-    F --> G[📋 Formatar Resposta]
-    
-    D --> H[🌐 Buscar na Web]
-    H --> I[📝 Extrair Informação]
-    
-    E --> J[🧠 Gerar Resposta]
-    
-    G --> K[📤 Entregar Resposta]
-    I --> K
-    J --> K
-    
-    K --> L[💾 Atualizar Memória]
+<p align="center">
+  <img src="assets/fluxoapp.png" alt="Arquitetura RAG" width="700">
+</p>
 ---
 ## ⚙️ Execução Local  
 
