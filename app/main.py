@@ -1,5 +1,5 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
+#from fastapi import FastAPI, HTTPException
+#from fastapi.middleware.cors import CORSMiddleware
 from models.schemas import ChatRequest, ChatResponse
 from models.payroll import PayrollData
 from services.payroll_service import PayrollService
@@ -7,13 +7,13 @@ from core.rag_engine import RAGEngine
 from services.llm_service import LLMService
 from core.chatbot import Chatbot
 from utils.config import settings
-from utils.logger import logger
+from logger import logger
 import threading
 import subprocess
 import os
 import sys
 import time
-import uvicorn
+#import uvicorn
 
 # Inicialização dos serviços
 try:

@@ -18,9 +18,27 @@ try:
     from app.services.llm_service import LLMService
     from app.core.chatbot import Chatbot
     from app.utils.config import settings
+
 except ImportError as e:
     st.error(f"❌ Erro ao carregar módulos locais: {e}")
     st.stop()
+
+# === IMPORTAÇÕES DOS GUARDRAILS E OBSERVABILITY ===
+try:
+    from guardrails import Guardrails
+    from observability import Observability
+    import logging
+    logger = logging.getLogger('chatbot_payroll')
+
+except ImportError as e:
+    st.warning(f"⚠️ Módulos de segurança não encontrados: {e}")
+    # Fallback básico
+    class Guardrails:
+        def validate_input(self, x): return True, "OK", {}
+        def sanitize_input(self, x): return x
+    class Observability:
+        def log_interaction(self, *args, **kwargs): return "no-log"
+        def log_guardrail_trigger(self, *args, **kwargs): return "no-log"
 
 
 # === Classe principal do Chatbot ===
@@ -28,6 +46,11 @@ class StreamlitChatbot:
     """Lógica principal do Chatbot de Folha de Pagamento."""
 
     def __init__(self):
+        # Inicializar Guardrails e Observability
+        self.guardrails = Guardrails()
+        self.observability = Observability()
+        self.session_id = f"session_{datetime.now():%Y%m%d_%H%M%S}"
+        
         data_file = "data/payroll.csv"
         if not os.path.exists(data_file):
             st.error(f"❌ Arquivo de dados não encontrado: `{data_file}`")
@@ -41,9 +64,78 @@ class StreamlitChatbot:
             self.llm_service = LLMService()
             self.chatbot = Chatbot(self.rag_engine, self.llm_service)
             self.initialized = True
+            
+            # Log de inicialização
+            self.observability.log_interaction(
+                session_id=self.session_id,
+                user_input="SYSTEM_STARTUP",
+                response="Chatbot inicializado com sucesso",
+                response_time=0.0,
+                status="success"
+            )
+            
         except Exception as e:
             st.error(f"❌ Falha ao inicializar o chatbot: {e}")
             self.initialized = False
+
+    # === Método principal de processamento ===
+    def process_message(self, message: str) -> dict:
+        """Processa a mensagem do usuário e retorna resposta e evidências."""
+        if not self.initialized:
+            return {"response": "Chatbot não inicializado corretamente.", "evidence": [], "sources": []}
+
+        start_time = datetime.now()
+        
+        try:
+            # === 1. VALIDAÇÃO COM GUARDRAILS ===
+            is_valid, validation_message, guardrail_metadata = self.guardrails.validate_input(message)
+            
+            if not is_valid:
+                response_time = (datetime.now() - start_time).total_seconds()
+                
+                # Log do bloqueio
+                self.observability.log_guardrail_trigger(
+                    session_id=self.session_id,
+                    guardrail_type="input_validation",
+                    user_input=message,
+                    details=guardrail_metadata
+                )
+                
+                self.observability.log_interaction(
+                    session_id=self.session_id,
+                    user_input=message,
+                    response=validation_message,
+                    response_time=response_time,
+                    status="blocked",
+                    guardrail_metadata=guardrail_metadata
+                )
+                return {"response": validation_message, "evidence": [], "sources": []}
+
+            # === 2. CHAMADA AO RAGENGINE ===
+            response_text, evidence = self.rag_engine.process_query(message)
+
+            # === 3. FORMATAÇÃO DO NOME (capitalize) PARA EXIBIÇÃO ===
+            match = re.search(r"\*\*(.*?)\*\*", response_text)
+            if match:
+                employee_name = match.group(1)
+                formatted_name = ' '.join(word.capitalize() for word in employee_name.split())
+                response_text = response_text.replace(f"**{employee_name}**", f"**{formatted_name}**")
+
+            # === 4. CALCULO DE TEMPO DE RESPOSTA E LOG ===
+            response_time = (datetime.now() - start_time).total_seconds()
+            self.observability.log_interaction(
+                session_id=self.session_id,
+                user_input=message,
+                response=response_text,
+                response_time=response_time,
+                status="success"
+            )
+
+            return {"response": response_text, "evidence": evidence, "sources": []}
+
+        except Exception as e:
+            logger.error(f"Erro ao processar mensagem: {e}")
+            return {"response": f"❌ Erro ao processar mensagem: {e}", "evidence": [], "sources": []}
 
     # === Utilitários ===
     @staticmethod
@@ -78,29 +170,6 @@ class StreamlitChatbot:
             formatted.append(f"- 📆 **Data Pagamento:** {ev.payment_date}\n---\n")
 
         return "\n".join(formatted)
-
-    def process_message(self, message: str) -> dict:
-        """Processa a mensagem do usuário e retorna resposta e evidências."""
-        if not self.initialized:
-            return {"response": "Chatbot não inicializado corretamente.", "evidence": [], "sources": []}
-
-        try:
-            if not self._is_relevant_question(message):
-                return {
-                    "response": (
-                        "❌ **Não foi possível compreender sua pergunta.**\n\n"
-                        "Por favor, faça perguntas específicas sobre folha de pagamento, "
-                        "salários, descontos ou informações dos funcionários **Ana Souza** e **Bruno Lima**."
-                    ),
-                    "evidence": [],
-                    "sources": [],
-                }
-
-            response_text, evidence = self.rag_engine.process_query(message)
-            return {"response": response_text, "evidence": evidence, "sources": []}
-
-        except Exception as e:
-            return {"response": f"⚠️ Erro ao processar a mensagem: {e}", "evidence": [], "sources": []}
 
     @staticmethod
     def _is_relevant_question(message: str) -> bool:
@@ -172,37 +241,12 @@ def inject_custom_css():
     """Injeta CSS personalizado para melhorar a aparência."""
     st.markdown("""
     <style>
-    /* Estilo principal */
-    .main .block-container {
-        padding-top: 2rem;
-        padding-bottom: 1rem;
-    }
-    
-    /* Input styling */
-    .stChatInput input {
-        border-radius: 12px;
-        border: 2px solid #2563EB;
-        height: 60px;
-        font-size: 16px;
-        padding: 15px 20px;
-        background-color: white;
-    }
-    
-    .stChatInput {
-        margin-top: 10px;
-        margin-bottom: 0;
-    }
-    
-    /* Estilo para mensagens de não entendimento */
-    .not-understood-message {
-        background-color: #fffbeb;
-        border: 1px solid #fef3c7;
-        border-radius: 8px;
-        padding: 20px;
-        margin: 10px 0;
-        color: #92400e;
-        border-left: 4px solid #f59e0b;
-    }
+    .main .block-container { padding-top: 2rem; padding-bottom: 1rem; }
+    .stChatInput input { border-radius: 12px; border: 2px solid #2563EB; height: 60px; font-size: 16px; padding: 15px 20px; background-color: white; }
+    .stChatInput { margin-top: 10px; margin-bottom: 0; }
+    .not-understood-message { background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 20px; margin: 10px 0; color: #92400e; border-left: 4px solid #f59e0b; }
+    .guardrail-blocked { background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 20px; margin: 10px 0; color: #856404; border-left: 4px solid #ffc107; }
+    .success-message { background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 8px; padding: 20px; margin: 10px 0; color: #155724; border-left: 4px solid #28a745; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -257,10 +301,12 @@ def main():
     for i, msg in enumerate(st.session_state.messages):
         with st.chat_message(msg["role"]):
             # Aplica estilos diferentes para tipos de mensagens
-            if "❌ Não foi possível compreender" in msg["content"]:
+            if "🚫 **Guardrail Ativado**" in msg["content"]:
+                st.markdown(f'<div class="guardrail-blocked">{msg["content"]}</div>', unsafe_allow_html=True)
+            elif "❌ Não foi possível compreender" in msg["content"]:
                 st.markdown(f'<div class="not-understood-message">{msg["content"]}</div>', unsafe_allow_html=True)
             else:
-                st.markdown(msg["content"])
+                st.markdown(f'<div class="success-message">{msg["content"]}</div>', unsafe_allow_html=True)
 
             if msg.get("evidence"):
                 with st.expander("📊 Ver Evidências", expanded=False):
@@ -285,7 +331,7 @@ def main():
     if user_input:
         st.session_state.messages.append({"role": "user", "content": user_input})
 
-        with st.spinner("🤔 Processando..."):
+        with st.spinner("🛡️ Validando e processando..."):
             result = st.session_state.chatbot.process_message(user_input)
 
         st.session_state.messages.append(
@@ -293,7 +339,6 @@ def main():
         )
 
         st.rerun()
-
 
 
 if __name__ == "__main__":

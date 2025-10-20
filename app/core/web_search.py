@@ -1,115 +1,158 @@
-import re
 import requests
+from duckduckgo_search import DDGS
+from typing import List, Dict, Optional
+import re
+from datetime import datetime
 import json
-from typing import Dict, Optional
-import sys
-import os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from app.utils.config import settings
-from app.utils.logger import logger
 
-class WebSearch:
+class WebSearchService:
+    """Serviço para busca web com citação de fontes"""
+    
     def __init__(self):
-        self.serper_api_key = settings.SERPER_API_KEY
+        self.ddgs = DDGS()
     
-    def search_selic_rate(self) -> Dict[str, Optional[str]]:
-        """Busca a taxa Selic atual"""
+    def search_selic_rate(self) -> Dict[str, str]:
+        """
+        Busca a taxa Selic atual com fontes confiáveis
+        Retorna: {'taxa': 'valor', 'fonte': 'url', 'descricao': 'texto'}
+        """
         try:
-            if not self.serper_api_key:
+            # Busca por termos relacionados à Selic
+            search_terms = [
+                "taxa selic atual Banco Central",
+                "Selic hoje BCB",
+                "taxa básica de juros Brasil",
+                "Copom Selic atual"
+            ]
+            
+            results = []
+            for term in search_terms:
+                search_results = self.ddgs.text(
+                    term, 
+                    region='br-br', 
+                    max_results=3
+                )
+                results.extend(search_results)
+            
+            # Filtra fontes confiáveis
+            reliable_sources = self._filter_reliable_sources(results)
+            
+            if reliable_sources:
+                best_result = reliable_sources[0]
+                selic_value = self._extract_selic_value(best_result['body'])
+                
                 return {
-                    "error": "Chave da API de busca não configurada",
-                    "source": None
-                }
-            
-            # Busca por "taxa Selic atual"
-            url = "https://google.serper.dev/search"
-            payload = json.dumps({
-                "q": "taxa selic atual 2024",
-                "num": 3
-            })
-            headers = {
-                'X-API-KEY': self.serper_api_key,
-                'Content-Type': 'application/json'
-            }
-            
-            response = requests.post(url, headers=headers, data=payload, timeout=10)
-            response.raise_for_status()
-            
-            data = response.json()
-            
-            # Extrai a informação da taxa Selic dos resultados
-            selic_info = self._extract_selic_info(data)
-            return selic_info
-            
-        except Exception as e:
-            logger.error(f"Erro na busca da Selic: {e}")
-            return {
-                "error": f"Erro ao buscar taxa Selic: {e}",
-                "source": None
-            }
-    
-    def _extract_selic_info(self, data: Dict) -> Dict[str, Optional[str]]:
-        """Extrai informação da taxa Selic dos resultados da busca"""
-        try:
-            if 'organic' not in data or not data['organic']:
-                return {
-                    "error": "Nenhum resultado encontrado",
-                    "source": None
-                }
-            
-            # Pega o primeiro resultado
-            first_result = data['organic'][0]
-            title = first_result.get('title', '')
-            snippet = first_result.get('snippet', '')
-            link = first_result.get('link', '')
-            
-            # Tenta extrair a taxa Selic do snippet
-            selic_rate = self._find_selic_in_text(snippet) or self._find_selic_in_text(title)
-            
-            if selic_rate:
-                return {
-                    "rate": selic_rate,
-                    "source": link,
-                    "snippet": snippet[:200] + "..." if len(snippet) > 200 else snippet
+                    'taxa': selic_value,
+                    'fonte': best_result['href'],
+                    'descricao': best_result['body'][:200] + "...",
+                    'timestamp': datetime.now().isoformat()
                 }
             else:
                 return {
-                    "error": "Taxa Selic não encontrada nos resultados",
-                    "source": link,
-                    "snippet": snippet[:200] + "..." if len(snippet) > 200 else snippet
+                    'taxa': 'Não encontrada',
+                    'fonte': 'Busca não retornou resultados confiáveis',
+                    'descricao': 'Tente novamente em alguns instantes',
+                    'timestamp': datetime.now().isoformat()
                 }
                 
         except Exception as e:
-            logger.error(f"Erro ao extrair info da Selic: {e}")
             return {
-                "error": f"Erro ao processar resultados: {e}",
-                "source": None
+                'taxa': 'Erro na busca',
+                'fonte': f'Erro: {str(e)}',
+                'descricao': 'Não foi possível acessar as informações',
+                'timestamp': datetime.now().isoformat()
             }
     
-    def _find_selic_in_text(self, text: str) -> Optional[str]:
-        """Encontra a taxa Selic no texto"""
+    def search_general_info(self, query: str, max_results: int = 3) -> List[Dict]:
+        """
+        Busca geral por informações na web
+        """
+        try:
+            results = self.ddgs.text(
+                query, 
+                region='br-br', 
+                max_results=max_results
+            )
+            
+            formatted_results = []
+            for result in results:
+                formatted_results.append({
+                    'titulo': result['title'],
+                    'url': result['href'],
+                    'resumo': result['body'][:150] + "..." if len(result['body']) > 150 else result['body'],
+                    'fonte': self._extract_domain(result['href'])
+                })
+            
+            return formatted_results
+            
+        except Exception as e:
+            return [{
+                'titulo': 'Erro na busca',
+                'url': '',
+                'resumo': f'Não foi possível realizar a busca: {str(e)}',
+                'fonte': 'Sistema'
+            }]
+    
+    def _filter_reliable_sources(self, results: List[Dict]) -> List[Dict]:
+        """Filtra fontes confiáveis para dados econômicos"""
+        reliable_domains = [
+            'bcb.gov.br', 'bancentral.gov.br',  # Banco Central
+            'gov.br', '.gov.br',                # Governo
+            'ibge.gov.br',                      # IBGE
+            'valor.com.br',                     # Valor Econômico
+            'g1.globo.com/economia',            # G1 Economia
+            'infomoney.com.br',                 # InfoMoney
+            'economia.uol.com.br'               # UOL Economia
+        ]
+        
+        reliable_results = []
+        for result in results:
+            if any(domain in result['href'].lower() for domain in reliable_domains):
+                reliable_results.append(result)
+        
+        return reliable_results
+    
+    def _extract_selic_value(self, text: str) -> str:
+        """Extrai o valor da Selic do texto"""
+        # Padrões para encontrar a taxa Selic
         patterns = [
             r'Selic[\s\S]*?(\d+[.,]\d+)%',
-            r'taxa Selic[\s\S]*?(\d+[.,]\d+)%',
+            r'taxa Selic[\s\S]*?(\d+[.,]\d+)',
             r'(\d+[.,]\d+)%[\s\S]*?Selic',
-            r'Selic[\s\S]*?(\d+[.,]\d+)'
+            r'juros[\s\S]*?(\d+[.,]\d+)%'
         ]
         
         for pattern in patterns:
             match = re.search(pattern, text, re.IGNORECASE)
             if match:
-                return match.group(1).replace(',', '.') + "%"
+                value = match.group(1).replace(',', '.')
+                try:
+                    # Valida se é um número válido
+                    float(value)
+                    return f"{value}%"
+                except ValueError:
+                    continue
         
-        return None
-
-# Versão alternativa sem API (fallback)
-class WebSearchFallback:
-    def search_selic_rate(self) -> Dict[str, Optional[str]]:
-        """Versão fallback sem API externa"""
-        return {
-            "rate": "13,25%",  # Valor exemplo
-            "source": "https://www.bcb.gov.br/controleinflacao/taxaselic",
-            "snippet": "Taxa Selic definida pelo Copom. Consulte o site oficial do Banco Central para informações atualizadas.",
-            "note": "Dado ilustrativo - Configure SERPER_API_KEY para busca em tempo real"
-        }
+        return "Valor não identificado"
+    
+    def _extract_domain(self, url: str) -> str:
+        """Extrai o domínio de uma URL"""
+        from urllib.parse import urlparse
+        try:
+            domain = urlparse(url).netloc
+            return domain.replace('www.', '')
+        except:
+            return url[:30] + "..."
+    
+    def format_search_response(self, search_data: Dict) -> str:
+        """Formata a resposta da busca para exibição"""
+        if search_data.get('taxa', '').lower() != 'não encontrada':
+            return (
+                f"**📊 {search_data['taxa']}**\n\n"
+                f"**Fonte:** {search_data['fonte']}\n"
+                f"**Descrição:** {search_data['descricao']}\n"
+                f"*Atualizado em: {datetime.now().strftime('%d/%m/%Y %H:%M')}*"
+            )
+        else:
+            return "Não foi possível encontrar a taxa Selic atual no momento."
