@@ -1,6 +1,6 @@
 # 🤖 Chatbot Folha de Pagamento  
 
-**Aplicação:** [Chatbot Folha de Pagamento](https://denilza-chatbot-payroll.streamlit.app/)  
+**Aplicação:** [Chatbot Folha de Pagamento]([https://denilza-chatbot-payroll.streamlit.app/](https://chatbotpayroll-eptmrmbmrb52zahgcb5knp.streamlit.app/))  
 
 Um chatbot inteligente para consulta de **folha de pagamento (payroll)** — o conjunto de registros salariais de colaboradores, incluindo salários, bônus e descontos.  
 O sistema permite consultar informações salariais de forma simples, automatizada e segura, utilizando **técnicas de RAG (Retrieval-Augmented Generation)** e **processamento de linguagem natural (NLP)**.  
