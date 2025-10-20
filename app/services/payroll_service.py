@@ -7,7 +7,7 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from app.models.schemas import Evidence
-from app.utils.logger import logger
+from logger import logger
 from app.services.formatter import format_currency_brl, parse_date_variations
 
 
@@ -38,7 +38,7 @@ class PayrollService:
             year_month = parsed_date.strftime("%Y-%m")
             return df[df['competency'] == year_month]
 
-        # Tenta匹配 diretamente
+        # Tenta diretamente
         if competency in df['competency'].values:
             return df[df['competency'] == competency]
 
