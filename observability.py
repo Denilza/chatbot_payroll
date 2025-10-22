@@ -1,4 +1,3 @@
-# observability.py
 import uuid
 from datetime import datetime
 from typing import Dict, Any
@@ -35,7 +34,7 @@ class Observability:
         
         return interaction_id
     
-    # ADICIONE ESTE MÉTODO QUE ESTAVA FALTANDO
+  
     def log_guardrail_trigger(self,
                              session_id: str,
                              guardrail_type: str,
