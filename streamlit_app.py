@@ -238,7 +238,7 @@ def clear_conversation():
 
 # === CSS Personalizado ===
 def inject_custom_css():
-    """Injeta CSS personalizado para melhorar a aparência."""
+    
     st.markdown("""
     <style>
     .main .block-container { padding-top: 2rem; padding-bottom: 1rem; }
