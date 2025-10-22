@@ -15,7 +15,8 @@ O projeto foi desenvolvido para **automatizar consultas de folha de pagamento**,
 - Utiliza o modelo **GPT-3.5-Turbo** (LLM livre da OpenAI), escolhido pelo **baixo custo, estabilidade e excelente desempenho** em tarefas de linguagem.  
 - A arquitetura **RAG (Retrieval-Augmented Generation)** garante **respostas precisas e contextualizadas** com base nos dados reais da folha.  
 - O **Pandas** foi adotado para manipulação e análise eficiente dos dados salariais, pela sua **performance, flexibilidade e ampla adoção no ecossistema de dados em Python**.  
-- Estrutura modular em **Python (3.11.9)** facilita **testes, manutenção e escalabilidade**.  
+- Estrutura modular em **Python (3.11.9)** facilita **testes, manutenção e escalabilidade**.
+- Backend - **FastAPI**-Testabilidade: Estrutura que facilita a criação de testes unitários e de integração e alta perfomance.
 
 <p align="center">
   <img src="assets/fluxoapp.png" alt="Arquitetura RAG" width="700">
@@ -69,8 +70,11 @@ Para executá-los, use:
 pytest -v
 
 
-## Endpoints disponíveis
+### Backend (FastAPI):
+```bash
+python -m app.main
 
+Acesse: http://localhost:8000/docs
 ### 1. Chat - Processamento de consultas
 ```bash
 $ curl -X POST http://localhost:8000/chat \
