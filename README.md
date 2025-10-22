@@ -76,7 +76,17 @@ pytest -v
 $ curl -X POST http://localhost:8000/chat \
 >   -H "Content-Type: application/json" \
 >   -d '{"message": "Quanto recebi em maio/2025? (Ana Souza)"}'
-{"response":"ana souza recebeu R$ 8.418,75 em maio de 2025.","evidence":[{"employee_id":"E001","name":"Ana Souza","competency":"2025-05","net_pay":8418.75,"payment_date":"2025-05-28","base_salary":8000.0,"bonus":1200.0,"deductions_inss":880.0,"deductions_irrf":551.25}],"sources":["payroll.csv"],"conversation_id":"default"}(venv) 
+{"response":"ana souza recebeu R$ 8.418,75 em maio de 2025.","evidence":[{"employee_id":"E001","name":"Ana Souza","competency":"2025-05","net_pay":8418.75,"payment_date":"2025-05-28","base_salary":8000.0,"bonus":1200.0,"deductions_inss":880.0,"deductions_irrf":551.25}],"sources":["payroll.csv"],"conversation_id":"default"}(venv)
+
+$ curl -X POST "http://localhost:8000/chat" \
+>   -H "Content-Type: application/json" \
+>   -d '{"message": "Quais foram os descontos de INSS e IRRF do Bruno em janeiro 2025"}'
+{"response":"O desconto de **INSS** de **bruno lima** em Janeiro/2025 foi R$ 660,00.","evidence":[{"employee_id":"E002","name":"Bruno Lima","competency":"2025-01","net_pay":6095.0,"payment_date":"2025-01-28","base_salary":6000.0,"bonus":500.0,"deductions_inss":660.0,"deductions_irrf":345.0}],"sources":["payroll.csv"],"conversation_id":"default"}  
+
+$ curl -X POST "http://localhost:8000/chat" \
+>   -H "Content-Type: application/json" \
+>   -d '{"message": "Data pagamento Bruno abril 2025"}'
+{"response":"O salário de **bruno lima** foi pago em 28/04/2025, e o líquido recebido foi R$ 5.756,25.","evidence":[{"employee_id":"E002","name":"Bruno Lima","competency":"2025-04","net_pay":5756.25,"payment_date":"2025-04-28","base_salary":6000.0,"bonus":0.0,"deductions_inss":660.0,"deductions_irrf":333.75}],"sources":["payroll.csv"],"conversation_id":"default"}
 
 ### 🧩 Monitoramento, Observabilidade e Guardrails
 
