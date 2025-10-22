@@ -1,0 +1,58 @@
+# Environment
+.env
+.env.txt
+.env.local
+*.env
+.env.*
+
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+*.pyc
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-*
+
+# Logs
+*.log
+logs/
+app.log
+*.log.*
+
+# Cache
+.cache/
+.mypy_cache/
+.pytest_cache/
+.cache/
+
+# Build and Distribution
+dist/
+build/
+*.egg-info/
+*.egg
+build/
+
+# Data files (descomente se não quiser versionar dados)
+# data/
+# *.csv
+# *.xlsx
+
+# Streamlit
+.streamlit/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temp files
+*.tmp
+*.temp
+data/

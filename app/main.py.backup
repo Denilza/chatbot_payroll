@@ -1,0 +1,259 @@
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from app.models.schemas import ChatRequest, ChatResponse
+from app.models.payroll import PayrollData
+from app.services.payroll_service import PayrollService
+from app.core.rag_engine import RAGEngine
+from app.services.llm_service import LLMService
+from app.core.chatbot import Chatbot
+from app.utils.config import settings
+from logger import logger
+import threading
+import subprocess
+import os
+import sys
+import time
+import uvicorn
+
+# Inicialização dos serviços
+try:
+    payroll_data = PayrollData(f"{settings.DATA_DIR}/{settings.PAYROLL_FILE}")
+    payroll_service = PayrollService(payroll_data)
+    rag_engine = RAGEngine(payroll_service)
+    llm_service = LLMService()
+    chatbot = Chatbot(rag_engine, llm_service)
+    print("✅ Serviços do chatbot inicializados com sucesso")
+except Exception as e:
+    print(f"❌ Erro na inicialização dos serviços: {e}")
+    chatbot = None
+
+# Configuração do FastAPI
+app = FastAPI(
+    title="Chatbot Folha de Pagamento",
+    description="Chatbot inteligente para consultas de folha de pagamento",
+    version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc"
+)
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/")
+async def root():
+    return {
+        "message": "Chatbot Folha de Pagamento API", 
+        "status": "online",
+        "version": "1.0.0"
+    }
+
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "healthy", 
+        "timestamp": time.time(),
+        "services": {
+            "chatbot": chatbot is not None,
+            "payroll_data": payroll_data is not None
+        }
+    }
+
+@app.post("/chat", response_model=ChatResponse)
+async def chat_endpoint(request: ChatRequest):
+    """Endpoint principal do chatbot"""
+    try:
+        if chatbot is None:
+            raise HTTPException(status_code=503, detail="Serviço do chatbot não disponível")
+        
+        logger.info(f"Recebida mensagem: {request.message}")
+        
+        response = chatbot.process_message(
+            request.message, 
+            request.conversation_id or "default"
+        )
+        
+        logger.info(f"Resposta gerada: {response.answer}")
+        return response
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Erro no endpoint /chat: {e}")
+        raise HTTPException(status_code=500, detail="Erro interno do servidor")
+
+@app.get("/employees")
+async def list_employees():
+    """Lista funcionários disponíveis"""
+    try:
+        if payroll_data is None:
+            raise HTTPException(status_code=503, detail="Dados de folha não disponíveis")
+            
+        employees = payroll_data.df['name'].unique().tolist()
+        return {
+            "employees": employees,
+            "total": len(employees)
+        }
+    except Exception as e:
+        logger.error(f"Erro ao listar funcionários: {e}")
+        raise HTTPException(status_code=500, detail="Erro interno do servidor")
+
+@app.get("/chatbot/info")
+async def chatbot_info():
+    """Informações sobre o estado do chatbot"""
+    return {
+        "status": "operational" if chatbot else "unavailable",
+        "rag_engine": "active" if rag_engine else "inactive",
+        "llm_service": "active" if llm_service else "inactive",
+        "payroll_data_loaded": payroll_data is not None
+    }
+
+def find_streamlit_app():
+    """Encontra o arquivo streamlit_app.py"""
+    # Procura na raiz do projeto
+    possible_paths = [
+        "streamlit_app.py",
+        "../streamlit_app.py",
+        "./streamlit_app.py",
+        os.path.join(os.path.dirname(__file__), "..", "streamlit_app.py")
+    ]
+    
+    for path in possible_paths:
+        if os.path.exists(path):
+            print(f"✅ Encontrado streamlit_app.py em: {path}")
+            return path
+    
+    print("❌ streamlit_app.py não encontrado nos locais:")
+    for path in possible_paths:
+        print(f"   - {path}")
+    return None
+
+def run_streamlit():
+    """Executa o Streamlit em uma thread separada"""
+    time.sleep(2)  # Aguarda a API iniciar
+    
+    try:
+        streamlit_path = find_streamlit_app()
+        if not streamlit_path:
+            return
+        
+        print("🚀 Iniciando Streamlit...")
+        
+        # Tenta portas em ordem
+        ports = [8501, 8502, 8503, 8504, 8505]
+        streamlit_started = False
+        
+        for port in ports:
+            try:
+                print(f"   🔄 Tentando porta {port}...")
+                
+                # Comando para executar o Streamlit
+                cmd = [
+                    sys.executable, "-m", "streamlit", "run",
+                    streamlit_path,
+                    "--server.port", str(port),
+                    "--server.address", "0.0.0.0",
+                    "--browser.serverAddress", "localhost",
+                    "--theme.base", "light",
+                    "--server.headless", "true"
+                ]
+                
+                # Executa em subprocesso
+                process = subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True
+                )
+                
+                # Aguarda um pouco para ver se inicia sem erro
+                time.sleep(3)
+                
+                if process.poll() is None:  # Ainda está rodando
+                    print(f"   ✅ Streamlit iniciado na porta {port}")
+                    streamlit_started = True
+                    
+                    # Thread para monitorar a saída
+                    def monitor_output():
+                        while True:
+                            output = process.stdout.readline()
+                            if output == '' and process.poll() is not None:
+                                break
+                            if output:
+                                print(f"[Streamlit {port}] {output.strip()}")
+                    
+                    monitor_thread = threading.Thread(target=monitor_output, daemon=True)
+                    monitor_thread.start()
+                    break
+                else:
+                    # Processo terminou, porta provavelmente ocupada
+                    print(f"   ❌ Porta {port} ocupada ou erro")
+                    continue
+                    
+            except Exception as e:
+                print(f"   ❌ Erro na porta {port}: {e}")
+                continue
+        
+        if not streamlit_started:
+            print("   💡 Dica: Feche outras instâncias do Streamlit ou use:")
+            print("        streamlit run streamlit_app.py --server.port 8502")
+            
+    except Exception as e:
+        print(f"❌ Erro crítico ao iniciar Streamlit: {e}")
+
+def start_fastapi():
+    """Inicia o servidor FastAPI"""
+    print("🔌 Iniciando FastAPI na porta 8000...")
+    uvicorn.run(
+        app, 
+        host="0.0.0.0", 
+        port=8000, 
+        log_level="info",
+        access_log=True
+    )
+
+def main():
+    """Função principal que inicia ambos os serviços"""
+    print("=" * 70)
+    print("🤖 CHATBOT FOLHA DE PAGAMENTO - INICIANDO SERVIÇOS")
+    print("=" * 70)
+    
+    # Verifica se o Streamlit está instalado
+    try:
+        subprocess.check_output([sys.executable, "-m", "streamlit", "version"])
+        print("✅ Streamlit encontrado")
+    except:
+        print("❌ Streamlit não encontrado. Instale com: pip install streamlit")
+        print("💡 Iniciando apenas a API...")
+        start_fastapi()
+        return
+    
+    # Inicia o Streamlit em uma thread separada
+    streamlit_thread = threading.Thread(target=run_streamlit, daemon=True)
+    streamlit_thread.start()
+    
+    print("\n📊 SERVIÇOS INICIADOS:")
+    print("   🔌 API FastAPI:  http://localhost:8000")
+    print("   📚 Documentação: http://localhost:8000/docs")
+    print("   🩺 Health Check: http://localhost:8000/health")
+    print("   🤖 Chatbot Info: http://localhost:8000/chatbot/info")
+    print("   👥 Employees:    http://localhost:8000/employees")
+    print("   📊 Streamlit:    http://localhost:8501 (ou porta alternativa)")
+    print("\n🔧 COMANDOS DE TESTE:")
+    print("   curl http://localhost:8000/health")
+    print('   curl -X POST http://localhost:8000/chat -H "Content-Type: application/json"')
+    print('        -d \'{"message": "Quanto recebi em maio/2025? (Ana Souza)"}\'')
+    print("\n" + "=" * 70)
+    print("💡 Use Ctrl+C para parar ambos os serviços")
+    print("=" * 70)
+    
+    # Inicia a API FastAPI (bloqueante)
+    start_fastapi()
+
+if __name__ == "__main__":
+    main()
